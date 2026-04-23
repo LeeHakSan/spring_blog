@@ -1,0 +1,20 @@
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+  port: 80
+
+logging:
+  level:
+    root: INFO #모든 라이브러리는 INFO 이상만 출력
+    com.tenco: DEBUG # 내 프로젝트는 디버그 이상 로그 출력
+
+spring:
+  #데이터베이스 연결 설정 (MySQL)
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/myblog?severTimezone=Asia/Seoul
+    username: root
+    password: root
+
