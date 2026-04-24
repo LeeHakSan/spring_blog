@@ -63,10 +63,6 @@ public class BoardController {
     public String list(Model model) {
         List<Board> boardList = boardNativeRepository.findAll();
         model.addAttribute("boardList", boardList);
-//        for (int i = 0; i < boardList.size(); i++) {
-//            System.out.println(boardList.get(i).getTitle());
-//            System.out.println("-------------------------");
-//        }
         return "board/list";
     }
 
