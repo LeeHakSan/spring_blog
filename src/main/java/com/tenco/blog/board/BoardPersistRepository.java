@@ -5,6 +5,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository // IoC
 @RequiredArgsConstructor // DI 처리 됨
 public class BoardPersistRepository {
@@ -38,4 +40,26 @@ public class BoardPersistRepository {
         //    1차 캐시에 들어간 이제 영속상태로 변경된 Object를 리턴 한다.
         return board;
     }
+
+    // JPQL을 사용한 게시글 조회
+    public List<Board> findAll() {
+
+        //JPQL : 엔티티 객체를 대상으로 하는 객체 지향 쿼리
+        // Board는 엔티티 클래스명, b는 별칭
+        // 주의!! 테이블명이 아닌 클래스 명 사용
+        String jpql = """
+                SELECT b FROM Board b ORDER BY b.createdAt DESC
+                """;
+        List<Board> boardList = em.createQuery(jpql, Board.class).getResultList();
+        return boardList;
+    }
+
+
+
+
+
+
+
+
+
 }
