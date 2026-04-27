@@ -85,5 +85,25 @@ public class BoardPersistRepository {
         em.remove(board);
     }
 
+    @Transactional
+    public void updateById(Integer id, BoardRequest.UpdateDTO updateDTO) {
+        // 수정시 항상 조회부터 확인
+        Board boardEntity = em.find(Board.class, id);
+        // em.find() 호출 후 리턴 받은 board 는 영속 상태가 되어졌다.
+        if(boardEntity == null)  {
+            throw new IllegalArgumentException("수정할 게시글을 찾을 수 없습니다 : " +id);
+        }
+        // 엔티티 -> 테이블과 매핑되는 Object는 updateDTO 가 없음
+        // 우리가 관리하고자 하는 엔티티는 Board 이다.
 
+        boardEntity.update(updateDTO);
+        // 변경 감지 (Dirty Checking) 동작됨
+        // 영속 컨텍스트에 관리되어 지는 객체(엔티티) 안에 조회 했을 때 기준으로 1차 캐쉬에 저장됨
+        // 추후 1차 캐쉬에 들어가 있는 객체의(엔티티) 변수 값이 변경 되었다면 자동으로 감지한다
+        // 그냥 새로운 보드 생성
+        // em.persist(boardEntity);
+
+        // 앞으로 수정 기능을 만들 때 더티체킹 동작으로 사용하자
+
+    }
 }

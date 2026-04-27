@@ -40,4 +40,18 @@ public class Board {
     public String getTime() {
         return MyDateUtil.timestampFormat(this.createdAt);
     }
+
+    // 수정 편의 기능 만들기
+    public void update(BoardRequest.UpdateDTO updateDTO) {
+        this.username = updateDTO.getUsername();
+        this.title = updateDTO.getTitle();
+        this.content = updateDTO.getContent();
+
+        // 변경 감지 동작 과정 (더티체킹)
+        // 1. 최초 조회시 영속성 컨텍스트 1차 캐쉬에 데이터를 스냅샷으로 보관함
+        // 2. 영속화된 엔티티가(board)의 멤버 변수 값이 변경 된다면
+        // 1차에서 보관했던 값과 2차에서 수정된 필드값을 비교함
+        // 3. 변화가 발생이 되었다면 트랜잭션 커밋 시점에 변경된 필드값 UPDATE 쿼리 자동 생성
+        // 4. 물리적인 DB에 반영됨
+    }
 }
