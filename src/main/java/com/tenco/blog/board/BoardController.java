@@ -75,7 +75,7 @@ public class BoardController {
     // /board/{{board.id}}/delete
     @PostMapping("/board/{id}/delete")
     public String deleteProc(@PathVariable(name = "id") Integer id) {
-        boardNativeRepository.deleteById(id);
+        boardPersistRepository.deleteById(id);
 
         // PRG 패턴( Post-> Redirect -> Get) 적용
         return "redirect:/";
