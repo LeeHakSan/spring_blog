@@ -64,7 +64,8 @@ public class BoardController {
     public String detailPage(@PathVariable(name = "id") Integer id, Model model) {
         // 유효성 검사 , 인증 검사
 
-        Board board = boardNativeRepository.findById(id);
+//        Board board = boardNativeRepository.findById(id);
+        Board board = boardPersistRepository.findById(id);
         model.addAttribute("board", board);
 
         return "board/detail";
