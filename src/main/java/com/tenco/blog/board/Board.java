@@ -1,9 +1,12 @@
-package com.tenco.blog.model;
+package com.tenco.blog.board;
 
 import com.tenco.blog.util.MyDateUtil;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
@@ -12,6 +15,9 @@ import java.sql.Timestamp;
 // 즉, 이 어노테이션이 있어야 JPA가 관리함
 @Entity
 @Table(name = "board_tb")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Board {
 
     // @Id : 이 필드가 기본키임을 설정함
@@ -22,6 +28,12 @@ public class Board {
     private String username;
     private String title;
     private String content;
+
+    // @CreationTimestamp : 하이버 네이트가 제공하는 어노테이션
+    // 특정 하나의 엔티티가 저장이 될 때 현재 시간을 자동으로 저장해 설정
+    // now() 명시할 필요 없음
+    // pc의 시간을 db에 (자동 날짜 주입)
+    @CreationTimestamp
     private Timestamp createdAt;
 
     // createdAt -> 포멧 하는 메서드 만들어 보기
