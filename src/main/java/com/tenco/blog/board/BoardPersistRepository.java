@@ -63,12 +63,13 @@ public class BoardPersistRepository {
 
         // 2. JPQL 문법으로 Board를 조회 하는 방법
         // :id -> ? 대신 변수로 접근하게 함
-        String jpql = """
-                SELECT b FROM Board b WHERE b.id = :id
-                """;
-        return em.createQuery(jpql, Board.class)
-                .setParameter("id", id)
-                .getSingleResult();
+//        String jpql = """
+//                SELECT b FROM Board b WHERE b.id = :id
+//                """;
+//        return em.createQuery(jpql, Board.class)
+//                .setParameter("id", id)
+//                .getSingleResult();
+        return em.find(Board.class, id);
     }
     // 게시글 삭제
     @Transactional
