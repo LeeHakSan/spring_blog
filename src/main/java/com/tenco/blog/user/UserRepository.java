@@ -28,22 +28,31 @@ public class UserRepository {
                 SELECT u FROM User u WHERE u.username = :username
                 """;
 
-        return em.createQuery(jpqlStr, User.class)
-                .setParameter("username", username)
-                .getSingleResult();
+        try {
+            return em.createQuery(jpqlStr, User.class)
+                    .setParameter("username", username)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // 로그인 요청 --> select
     public User findByUsernameAndPassword(String username, String password) {
         String jpqlStr = """
-                SELECT u FROM User u WHERE u.usename = :username AND u.password = :password
+                SELECT u FROM User u WHERE u.username = :username AND u.password = :password
                 """;
-        User userEntity = em.createQuery(jpqlStr, User.class)
-                .setParameter("username", username)
-                .setParameter("password", password)
-                .getSingleResult();
-        return userEntity;
-    }
 
+        try {
+            return em.createQuery(jpqlStr, User.class)
+                    .setParameter("username", username)
+                    .setParameter("password", password)
+                    .getSingleResult();
+
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
 
 }
