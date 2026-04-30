@@ -19,9 +19,7 @@ public class UserController {
     @PostMapping("/user/update")
     public String updateProc(UserRequest.UpdateDTO updateDTO, HttpSession session) {
         User sessionUser = (User) httpSession.getAttribute("sessionUser");
-        if (sessionUser == null) {
-            return "redirect:/login-form";
-        }
+
         try {
             updateDTO.validate();
 
@@ -43,9 +41,6 @@ public class UserController {
     public String updateForm(HttpSession session, Model model) {
         // 인증 검사
         User sessionUser = (User) session.getAttribute("sessionUser");
-        if (sessionUser == null) {
-            return "redirect:/login-form";
-        }
 
         User userEntity = userRepository.findById(sessionUser.getId());
         userEntity.setPassword("");
@@ -76,11 +71,6 @@ public class UserController {
 
         // 코드가 여기까지 도달한다면 우리 DB에 정상 사용자임을 논리적으로 확인 가능
         httpSession.setAttribute("sessionUser", sessionUser);
-
-        System.out.println("로그인 성공");
-        System.out.println("로그인 사용자 : " + sessionUser.getUsername());
-        System.out.println("로그인 이메일 : " + sessionUser.getEmail());
-
         return "redirect:/";
     }
 
@@ -109,9 +99,6 @@ public class UserController {
     // 파싱 전략 1 - key=value 구조 (@RequestPharam)
     // 파싱 전략 2 - ObjectDTO 설계
     public String joinProc(UserRequest.JoinDTO joinDTO) {
-        log.info("username: " + joinDTO.getUsername());
-        log.info("username: " + joinDTO.getPassword());
-        log.info("username: " + joinDTO.getEmail());
         // 1. 유효성 검사 하기
         joinDTO.validate(); // 유효성 검사 --> 오류 --> 예외 처리로 넘어감
 //        회원가입 요청 전 중복 username 검사
@@ -121,8 +108,7 @@ public class UserController {
         }
         userRepository.save(joinDTO.toEntity());
 
-        // todo 로그인 화면으로 리다이렉트 처리 예정
-        return "redirect:/";
+        return "redirect:/login-form";
     }
 
 
