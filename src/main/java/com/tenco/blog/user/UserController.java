@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -15,10 +16,49 @@ public class UserController {
     private final UserRepository userRepository;
     private final HttpSession httpSession;
 
+    @PostMapping("/user/update")
+    public String updateProc(UserRequest.UpdateDTO updateDTO, HttpSession session) {
+        User sessionUser = (User) httpSession.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/login-form";
+        }
+        try {
+            updateDTO.validate();
+
+            // 더티 체킹 전략
+            User userEntity = userRepository.updateById(sessionUser.getId(), updateDTO);
+
+            // 세션 동기화 처리
+            session.setAttribute("sessionUser", userEntity);
+
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+        return "redirect:/";
+    }
+
+    // 프로필 화면 요청
+    // http://localhost:8080/user/update-form
+    @GetMapping("/user/update-form")
+    public String updateForm(HttpSession session, Model model) {
+        // 인증 검사
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/login-form";
+        }
+
+        User userEntity = userRepository.findById(sessionUser.getId());
+        userEntity.setPassword("");
+
+        // 가방에 데이터 받아서 화면에 값 내려주기
+        model.addAttribute("user", userEntity);
+        return "user/update-form";
+    }
+
     // 로그인 화면 요청
     // login-form : http://localhost:8080/login-form
     @GetMapping("/login-form")
-    public String loginFormPage () {
+    public String loginFormPage() {
         return "user/login-form";
     }
 
@@ -84,4 +124,6 @@ public class UserController {
         // todo 로그인 화면으로 리다이렉트 처리 예정
         return "redirect:/";
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.tenco.blog.board;
 
+import com.tenco.blog.user.User;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,18 +11,26 @@ public class BoardRequest {
     @Data
     @Builder
     public static class SaveDTO {
-        private String username;
         private String title;
         private String content;
 
         // 편의 기능 설계 가능
         // DTO에서 Entity로 변환 해주는 편의 메서드
-        public Board toEntity() {
+        public Board toEntity(User user) {
             return Board.builder()
-//                    .username(username)
                     .title(title)
+                    .user(user)
                     .content(content)
                     .build();
+        }
+
+        public void validate() {
+            if (this.title.trim().isEmpty()) {
+                throw new IllegalArgumentException("제목은 공백일 수 없습니다.");
+            }
+            if (this.content.trim().isEmpty() || this.content.trim().length() <= 3) {
+                throw new IllegalArgumentException("컨텐츠 내용은 3자 이하일 수 없습니다.");
+            }
         }
     }
 
@@ -35,9 +44,6 @@ public class BoardRequest {
 
         // 게시글 수정 시 유효성 검사 편의 메서드
         public void validate() {
-            if (this.username.trim().isEmpty()) {
-                throw new IllegalArgumentException("유저 이름은 공백일 수 없습니다.");
-            }
             if (this.title.trim().isEmpty()) {
                 throw new IllegalArgumentException("제목은 공백일 수 없습니다.");
             }
