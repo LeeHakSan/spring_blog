@@ -13,39 +13,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequiredArgsConstructor // DI 처리
 public class UserController {
 
-    private final UserRepository userRepository;
-    private final HttpSession httpSession;
+    private final UserService userService;
 
     @PostMapping("/user/update")
     public String updateProc(UserRequest.UpdateDTO updateDTO, HttpSession session) {
-        User sessionUser = (User) httpSession.getAttribute("sessionUser");
-
-        try {
-            updateDTO.validate();
-
-            // 더티 체킹 전략
-            User userEntity = userRepository.updateById(sessionUser.getId(), updateDTO);
-
-            // 세션 동기화 처리
-            session.setAttribute("sessionUser", userEntity);
-
-        } catch (Exception e) {
-            throw new RuntimeException();
-        }
+        // 인증 검사 처리 - LoginInterceptor 에서 처리
+        // 유효성 검사 -
+        updateDTO.validate();
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        User userEntity = userService.updateById(sessionUser.getId(), updateDTO);
+        // 세션 동기화 처리
+        session.setAttribute("sessionUser", userEntity);
         return "redirect:/";
     }
 
     // 프로필 화면 요청
-    // http://localhost:8080/user/update-form
     @GetMapping("/user/update-form")
     public String updateForm(HttpSession session, Model model) {
-        // 인증 검사
         User sessionUser = (User) session.getAttribute("sessionUser");
-
-        User userEntity = userRepository.findById(sessionUser.getId());
-        userEntity.setPassword("");
-
-        // 가방에 데이터 받아서 화면에 값 내려주기
+        User userEntity = userService.findById(sessionUser.getId());
         model.addAttribute("user", userEntity);
         return "user/update-form";
     }
@@ -54,32 +40,27 @@ public class UserController {
     // login-form : http://localhost:8080/login-form
     @GetMapping("/login-form")
     public String loginFormPage() {
+        // 인증 검사 x, 유효성 검사 x
         return "user/login-form";
     }
 
     // 로그인 기능 요청
     @PostMapping("/login")
-    public String loginProc(UserRequest.LoginDTO loginDTO) {
-        // 1. 유효성 검사
+    public String loginProc(UserRequest.LoginDTO loginDTO, HttpSession session) {
+        // 인증 검사 x, 유효성 검사 o
         loginDTO.validate();
+        User userEntity = userService.login(loginDTO);
+        session.setAttribute("sessionUser", userEntity);
 
-        User sessionUser = userRepository.findByUsernameAndPassword(loginDTO.getUsername(), loginDTO.getPassword());
-        if (sessionUser == null) {
-            // 로그인 실패 (username, password 불일치)
-            throw new IllegalArgumentException("사용자명 또는 비밀번호가 잘못 됐습니다");
-        }
-
-        // 코드가 여기까지 도달한다면 우리 DB에 정상 사용자임을 논리적으로 확인 가능
-        httpSession.setAttribute("sessionUser", sessionUser);
         return "redirect:/";
     }
 
     // 로그아웃 기능 요청
     @GetMapping("/logout")
-    public String logout() {
+    public String logout(HttpSession session) {
         // 세션 메모리에 내 정보를 없애버림
         // 로그아웃
-        httpSession.invalidate();
+        session.invalidate();
 
         return "redirect:/";
     }
@@ -88,25 +69,16 @@ public class UserController {
     // 주소설계 : http://localhost:8080/join-form
     @GetMapping("/join-form")
     public String joinFormPage() {
-
         return "user/join-form";
     }
 
     // 회원가입 기능 요청
     // 주소설계 : http://localhost:8080/join
     @PostMapping("/join")
-    // 메세지 컨버터가 구문을 분석해서 자동으로 파싱 처리 및 매핑 해준다
-    // 파싱 전략 1 - key=value 구조 (@RequestPharam)
-    // 파싱 전략 2 - ObjectDTO 설계
     public String joinProc(UserRequest.JoinDTO joinDTO) {
-        // 1. 유효성 검사 하기
+        //  인증검사 x, 유효성 검사 하기 o
         joinDTO.validate(); // 유효성 검사 --> 오류 --> 예외 처리로 넘어감
-//        회원가입 요청 전 중복 username 검사
-        User userCheckName = userRepository.findByUsername(joinDTO.getUsername());
-        if (userCheckName != null) {
-            throw new IllegalArgumentException("이미 사용중인 username 입니다 : " + joinDTO.getUsername());
-        }
-        userRepository.save(joinDTO.toEntity());
+        userService.join(joinDTO);
 
         return "redirect:/login-form";
     }
