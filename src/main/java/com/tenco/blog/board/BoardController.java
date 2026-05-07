@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class BoardController {
         // 2. 유효성 검사
         User sessionUser = (User) session.getAttribute("sessionUser");
         saveDTO.validate();
-        boardService.save(saveDTO, sessionUser);
+        boardService.게시글작성(saveDTO, sessionUser);
         return "redirect:/";
     }
 
@@ -55,7 +56,9 @@ public class BoardController {
      */
     @GetMapping({"/", "index"})
     public String list(Model model) {
-        List<Board> boardList = boardService.findAll();
+        List<BoardResponse.ListDTO> boardList = boardService.게시글목록();
+        // OSIV 개념을 false로 설정 했기 때문에 여기서 LAZY 요청을 하면 터져 버린다
+        // boardList.get(0).getUser().getUsername();
         model.addAttribute("boardList", boardList);
         return "board/list";
     }
@@ -65,8 +68,8 @@ public class BoardController {
     // http://localhost:8080/board/1
     @GetMapping("/board/{id}")
     public String detailPage(@PathVariable(name = "id") Integer id, Model model) {
-        Board board = boardService.findById(id);
-        model.addAttribute("board", board);
+        BoardResponse.DetailDTO detailDTO = boardService.게시글상세조회(id);
+        model.addAttribute("board", detailDTO);
         return "board/detail";
     }
 
@@ -78,7 +81,7 @@ public class BoardController {
     @PostMapping("/board/{id}/delete")
     public String deleteProc(@PathVariable(name = "id") Integer id, HttpSession session) {
         User sessionUser = (User) session.getAttribute("sessionUser");
-        boardService.deleteById(id, sessionUser);
+        boardService.게시글삭제(id, sessionUser);
         return "redirect:/";
     }
 
@@ -89,8 +92,8 @@ public class BoardController {
     public String updateFormPage(@PathVariable(name = "id") Integer id, Model model, HttpSession session) {
         // findById <-- 상세보기 화면 요청이라서 누구나 요청 가능
         User sessionUser = (User) session.getAttribute("sessionUser");
-        Board boardEntity = boardService.findByIdAndCheckOwner(id, sessionUser);
-        model.addAttribute("board", boardEntity);
+        BoardResponse.DetailDTO detailDTO = boardService.게시글상세화면및인가처리(id, sessionUser);
+        model.addAttribute("board", detailDTO);
 
         return "board/update-form";
     }
@@ -103,7 +106,7 @@ public class BoardController {
         // 인증 검사
         User sessionUser = (User) session.getAttribute("sessionUser");
         updateDTO.validate();
-        boardService.updateById(id, updateDTO, sessionUser);
+        boardService.게시글수정(id, updateDTO, sessionUser);
 
         return "redirect:/board/" + id;
     }
