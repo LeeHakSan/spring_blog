@@ -4,7 +4,9 @@ import com.tenco.blog.user.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,4 +27,13 @@ public class ReplyController {
     }
 
     // 댓글 삭제 기능 요청
+    @PostMapping("/reply/{id}/delete")
+    public String delete(@PathVariable(name = "id") Integer replyId,
+                         HttpSession session,
+                         @RequestParam(name = "boardId")  Integer boardId) {
+        // 1. 인증검사 (인터셉터)
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        replyService.댓글삭제(replyId, sessionUser.getId());
+        return "redirect:/board/" + boardId;
+    }
 }
