@@ -19,17 +19,18 @@ public class UserController {
     @PostMapping("/user/update")
     public String updateProc(UserRequest.UpdateDTO updateDTO, HttpSession session) {
         updateDTO.validate();
-        UserResponse.SessionDTO sessionUser = (UserResponse.SessionDTO) session.getAttribute("sessionUser");
-        userService.회원정보수정(sessionUser.getId(), updateDTO, session);
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        User updateUser = userService.회원정보수정(sessionUser.getId(), updateDTO);
+        session.setAttribute("sessionUser", updateUser);
         return "redirect:/";
     }
 
     // 프로필 화면 요청
     @GetMapping("/user/update-form")
     public String updateForm(HttpSession session, Model model) {
-        UserResponse.SessionDTO sessionUser = (UserResponse.SessionDTO) session.getAttribute("sessionUser");
-        UserResponse.SessionDTO sessionDTO = userService.회원정보수정화면(sessionUser.getId());
-        model.addAttribute("user", sessionDTO);
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        User user = userService.회원정보수정화면(sessionUser.getId());
+        model.addAttribute("user", user);
         return "user/update-form";
     }
 
@@ -46,8 +47,8 @@ public class UserController {
     public String loginProc(UserRequest.LoginDTO reqloginDTO, HttpSession session) {
         // 인증 검사 x, 유효성 검사 o
         reqloginDTO.validate();
-        UserResponse.SessionDTO sessionDTO = userService.로그인(reqloginDTO);
-        session.setAttribute("sessionUser", sessionDTO);
+        User user = userService.로그인(reqloginDTO);
+        session.setAttribute("sessionUser", user);
 
         return "redirect:/";
     }

@@ -45,6 +45,7 @@ public class BoardResponse {
         private String content;
         private String username;
         private Integer userId; // User PK
+        private boolean isOwner;
 
         public DetailDTO(Board board) {
             this.id = board.getId();
@@ -58,6 +59,17 @@ public class BoardResponse {
 
         }
 
+        // 소유자 확인
+        public boolean checkIsOwner(Integer sessionUserId) {
+            if (sessionUserId == null) {
+                return false;
+            }
+            if (sessionUserId.equals(this.userId)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 } // end of outer class
 
